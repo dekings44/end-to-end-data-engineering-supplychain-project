@@ -102,3 +102,46 @@ region_dimension = supply_data.select('customer_city','customer_country','custom
 # Creating the Fact table
 supplychain_fact_table = supply_data.select('type','days_for_shipping_real','days_for_shipment_scheduled','benefit_per_order','sales_per_customer','delivery_status','late_delivery_risk',
  'category_id','customer_id','customer_zipcode','department_id','latitude','longitude','market','order_customer_id','order_date_dateorders','order_id','order_item_cardprod_id','order_item_discount','order_item_discount_rate','order_item_id','order_item_product_price','order_item_profit_ratio','order_item_quantity','sales','order_item_total','order_profit_per_order','order_region','order_state','order_status','product_card_id','shipping_order_date','shipping_mode')
+
+# COMMAND ----------
+
+
+
+# Replace "path_in_data_lake" with the desired path within your Azure Data Lake Storage container
+
+source = "abfss://denormalized@supplychainobject.dfs.core.windows.net/"
+mount_point = "/mnt/denormalized"
+#path_in_data_lake = "/mnt/denormalized/"
+
+# Save DataFrames to Azure Data Lake Storage
+supplychain_fact_table.write.parquet(source + mount_point + " " + "supplychain_fact_table")
+region_dimension.write.parquet(source + mount_point + " " + "region_dimension")
+customer_dimension.write.parquet(source + mount_point + " " + "customer_dimension")
+department_dimension.write.parquet(source + mount_point + " " + "department_dimension")
+category_dimension.write.parquet(source + mount_point + " " + "category_dimension")
+product_dimension.write.parquet(source + mount_point + " " + "product_dimension")
+date_dimension.write.parquet(source + mount_point + " " + "date_dimension")
+
+# COMMAND ----------
+
+category_data = '/mnt/denormalized/denormalized category_dimension/'
+
+# COMMAND ----------
+
+dbutils.fs.ls("/mnt/denormalized/mnt/denormalized category_dimension/")
+
+# COMMAND ----------
+
+cat_data = '/mnt/denormalized/mnt/denormalized category_dimension/part-00000-tid-4490939333151561952-e15b6beb-00ec-4c64-957c-a4d5e52b4d5a-35-1.c000.snappy.parquet'
+
+# COMMAND ----------
+
+dim_data = spark.read.format('parquet').load(cat_data)
+
+# COMMAND ----------
+
+display(dim_data)
+
+# COMMAND ----------
+
+display(dim_data.category_id)
